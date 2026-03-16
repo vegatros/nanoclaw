@@ -152,8 +152,8 @@ resource "aws_instance" "nanoclaw" {
     chown ec2-user:ec2-user "$ENV_FILE"
     chmod 600 "$ENV_FILE"
 
-    # Start the service
-    su - ec2-user -c 'XDG_RUNTIME_DIR=/run/user/$(id -u) systemctl --user start nanoclaw.service'
+    # Enable and start the service
+    su - ec2-user -c 'XDG_RUNTIME_DIR=/run/user/$(id -u) systemctl --user enable --now nanoclaw.service'
   EOF
 
   tags = {
