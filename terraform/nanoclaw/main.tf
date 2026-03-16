@@ -71,7 +71,7 @@ resource "aws_iam_role_policy" "secrets" {
     Version = "2012-10-17"
     Statement = [{
       Effect   = "Allow"
-      Action   = ["secretsmanager:GetSecretValue"]
+      Action   = ["secretsmanager:GetSecretValue", "secretsmanager:UpdateSecret"]
       Resource = [
         data.aws_secretsmanager_secret.nanoclaw.arn,
         "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_user*",
