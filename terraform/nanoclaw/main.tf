@@ -1,31 +1,3 @@
-# Job bot role for LinkedIn automation (assumable by EC2 instance role)
-resource "aws_iam_role" "job_bot" {
-  name = "nanoclaw-job-bot"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = { AWS = "arn:aws:iam::925185632967:root" }
-      Action    = "sts:AssumeRole"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy" "job_bot" {
-  name = "linkedin-secrets"
-  role = aws_iam_role.job_bot.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["secretsmanager:GetSecretValue"]
-      Resource = [
-        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_user*",
-        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_pass*"
-      ]
-    }]
-  })
-}
 
 # VPC
 resource "aws_vpc" "main" {
@@ -100,7 +72,11 @@ resource "aws_iam_role_policy" "secrets" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue"]
-      Resource = [data.aws_secretsmanager_secret.nanoclaw.arn]
+      Resource = [
+        data.aws_secretsmanager_secret.nanoclaw.arn,
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_user*",
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_pass*"
+      ]
     }]
   })
 }
