@@ -89,18 +89,10 @@ resource "aws_iam_instance_profile" "nanoclaw" {
   role = aws_iam_role.nanoclaw.name
 }
 
-# Secrets Manager for tokens
+# Secrets Manager for tokens (values managed outside Terraform via: aws secretsmanager update-secret)
 resource "aws_secretsmanager_secret" "nanoclaw" {
   name        = "${var.project_name}/env"
   description = "NanoClaw environment variables (tokens)"
-}
-
-resource "aws_secretsmanager_secret_version" "nanoclaw" {
-  secret_id = aws_secretsmanager_secret.nanoclaw.id
-  secret_string = jsonencode({
-    TELEGRAM_BOT_TOKEN      = var.telegram_bot_token
-    CLAUDE_CODE_OAUTH_TOKEN = var.claude_code_oauth_token
-  })
 }
 
 # NanoClaw pre-built AMI (includes Docker, Node.js 22, Claude Code, nanoclaw built, agent container image, systemd service, linger enabled)
@@ -139,6 +131,15 @@ resource "aws_instance" "nanoclaw" {
     #!/bin/bash
     set -e
 
+    # Enable lingering so systemd user services survive session logout
+    loginctl enable-linger ec2-user
+
+    # Wait for IAM instance profile to propagate
+    for i in $(seq 1 30); do
+      aws sts get-caller-identity --region ${var.aws_region} >/dev/null 2>&1 && break
+      sleep 2
+    done
+
     # Pull secrets from Secrets Manager and write .env
     SECRET=$(aws secretsmanager get-secret-value \
       --secret-id "${var.project_name}/env" \
@@ -162,5 +163,5 @@ resource "aws_instance" "nanoclaw" {
     Name = "${var.project_name}-ec2"
   }
 
-  depends_on = [aws_secretsmanager_secret_version.nanoclaw]
+  depends_on = [aws_secretsmanager_secret.nanoclaw]
 }

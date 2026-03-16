@@ -37,17 +37,3 @@ variable "key_name" {
   type        = string
   default     = ""
 }
-
-variable "telegram_bot_token" {
-  description = "Telegram bot token"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "claude_code_oauth_token" {
-  description = "Claude Code OAuth token"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
