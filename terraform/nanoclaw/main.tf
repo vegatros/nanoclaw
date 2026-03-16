@@ -160,7 +160,11 @@ resource "aws_iam_role_policy" "secrets" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue"]
-      Resource = [data.aws_secretsmanager_secret.nanoclaw.arn]
+      Resource = [
+        data.aws_secretsmanager_secret.nanoclaw.arn,
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_user*",
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_pass*"
+      ]
     }]
   })
 }
