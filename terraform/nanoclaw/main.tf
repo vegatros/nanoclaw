@@ -79,7 +79,7 @@ resource "aws_iam_role_policy" "secrets" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue"]
-      Resource = [aws_secretsmanager_secret.nanoclaw.arn]
+      Resource = [data.aws_secretsmanager_secret.nanoclaw.arn]
     }]
   })
 }
@@ -89,10 +89,11 @@ resource "aws_iam_instance_profile" "nanoclaw" {
   role = aws_iam_role.nanoclaw.name
 }
 
-# Secrets Manager for tokens (values managed outside Terraform via: aws secretsmanager update-secret)
-resource "aws_secretsmanager_secret" "nanoclaw" {
-  name        = "${var.project_name}/env"
-  description = "NanoClaw environment variables (tokens)"
+# Secrets Manager for tokens (created and managed outside Terraform via AWS CLI)
+# Create: aws secretsmanager create-secret --name "nanoclaw-dev/env" --secret-string '{"TELEGRAM_BOT_TOKEN":"...","CLAUDE_CODE_OAUTH_TOKEN":"..."}'
+# Update: aws secretsmanager update-secret --secret-id "nanoclaw-dev/env" --secret-string '{"TELEGRAM_BOT_TOKEN":"...","CLAUDE_CODE_OAUTH_TOKEN":"..."}'
+data "aws_secretsmanager_secret" "nanoclaw" {
+  name = "${var.project_name}/env"
 }
 
 # NanoClaw pre-built AMI (includes Docker, Node.js 22, Claude Code, nanoclaw built, agent container image, systemd service, linger enabled)
@@ -163,5 +164,5 @@ resource "aws_instance" "nanoclaw" {
     Name = "${var.project_name}-ec2"
   }
 
-  depends_on = [aws_secretsmanager_secret.nanoclaw]
+  depends_on = [data.aws_secretsmanager_secret.nanoclaw]
 }
