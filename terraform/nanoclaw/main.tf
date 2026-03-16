@@ -1,6 +1,6 @@
-# Admin role for managing NanoClaw infrastructure (assumable by any IAM principal in this account)
-resource "aws_iam_role" "admin" {
-  name = "nanoclaw-admin"
+# Job bot role for LinkedIn automation (assumable by EC2 instance role)
+resource "aws_iam_role" "job_bot" {
+  name = "nanoclaw-job-bot"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -11,79 +11,19 @@ resource "aws_iam_role" "admin" {
   })
 }
 
-resource "aws_iam_role_policy" "admin" {
-  name = "nanoclaw-management"
-  role = aws_iam_role.admin.id
+resource "aws_iam_role_policy" "job_bot" {
+  name = "linkedin-secrets"
+  role = aws_iam_role.job_bot.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Sid      = "EC2Full"
-        Effect   = "Allow"
-        Action   = "ec2:*"
-        Resource = "*"
-      },
-      {
-        Sid    = "IAMRolesAndProfiles"
-        Effect = "Allow"
-        Action = [
-          "iam:CreateRole", "iam:DeleteRole", "iam:GetRole", "iam:PassRole",
-          "iam:TagRole", "iam:UntagRole", "iam:ListRolePolicies",
-          "iam:ListAttachedRolePolicies", "iam:ListInstanceProfilesForRole",
-          "iam:AttachRolePolicy", "iam:DetachRolePolicy",
-          "iam:PutRolePolicy", "iam:GetRolePolicy", "iam:DeleteRolePolicy",
-          "iam:CreateInstanceProfile", "iam:DeleteInstanceProfile",
-          "iam:GetInstanceProfile", "iam:AddRoleToInstanceProfile",
-          "iam:RemoveRoleFromInstanceProfile",
-          "iam:TagInstanceProfile", "iam:UntagInstanceProfile"
-        ]
-        Resource = [
-          "arn:aws:iam::925185632967:role/nanoclaw-*",
-          "arn:aws:iam::925185632967:instance-profile/nanoclaw-*"
-        ]
-      },
-      {
-        Sid    = "SecretsManager"
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:CreateSecret", "secretsmanager:UpdateSecret",
-          "secretsmanager:DescribeSecret", "secretsmanager:GetSecretValue",
-          "secretsmanager:TagResource"
-        ]
-        Resource = "arn:aws:secretsmanager:us-east-1:925185632967:secret:nanoclaw-*"
-      },
-      {
-        Sid    = "SSM"
-        Effect = "Allow"
-        Action = [
-          "ssm:StartSession", "ssm:TerminateSession",
-          "ssm:SendCommand", "ssm:GetCommandInvocation",
-          "ssm:DescribeInstanceInformation"
-        ]
-        Resource = "*"
-      },
-      {
-        Sid    = "TerraformStateS3"
-        Effect = "Allow"
-        Action = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
-        Resource = [
-          "arn:aws:s3:::terraform-state-925185632967",
-          "arn:aws:s3:::terraform-state-925185632967/*"
-        ]
-      },
-      {
-        Sid      = "TerraformStateDynamoDB"
-        Effect   = "Allow"
-        Action   = ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem"]
-        Resource = "arn:aws:dynamodb:us-east-1:925185632967:table/terraform-state-lock"
-      },
-      {
-        Sid      = "STS"
-        Effect   = "Allow"
-        Action   = "sts:GetCallerIdentity"
-        Resource = "*"
-      }
-    ]
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["secretsmanager:GetSecretValue"]
+      Resource = [
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_user*",
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_pass*"
+      ]
+    }]
   })
 }
 
@@ -160,11 +100,7 @@ resource "aws_iam_role_policy" "secrets" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue"]
-      Resource = [
-        data.aws_secretsmanager_secret.nanoclaw.arn,
-        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_user*",
-        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_pass*"
-      ]
+      Resource = [data.aws_secretsmanager_secret.nanoclaw.arn]
     }]
   })
 }
