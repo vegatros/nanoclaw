@@ -37,14 +37,6 @@ resource "aws_security_group" "nanoclaw" {
   description = "Security group for nanoclaw EC2"
   vpc_id      = aws_vpc.main.id
 
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -113,8 +105,6 @@ resource "aws_instance" "nanoclaw" {
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.nanoclaw.id]
   iam_instance_profile   = aws_iam_instance_profile.nanoclaw.name
-  key_name               = var.key_name != "" ? var.key_name : null
-
   associate_public_ip_address = true
 
   metadata_options {

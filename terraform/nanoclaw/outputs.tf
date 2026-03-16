@@ -8,7 +8,7 @@ output "public_ip" {
   value       = aws_instance.nanoclaw.public_ip
 }
 
-output "ssh_command" {
-  description = "SSH command to connect"
-  value       = var.key_name != "" ? "ssh -i ${var.key_name}.pem ec2-user@${aws_instance.nanoclaw.public_ip}" : "Use SSM: aws ssm start-session --target ${aws_instance.nanoclaw.id}"
+output "ssm_command" {
+  description = "SSM command to connect"
+  value       = "aws ssm start-session --target ${aws_instance.nanoclaw.id} --region ${var.aws_region}"
 }

@@ -44,7 +44,7 @@ Deploys a fully automated NanoClaw instance on AWS. One `terraform apply` gives 
                          │  │  │  Public Subnet       │  │  │
                          │  │  │  Internet Gateway    │  │  │
                          │  │  │  Security Group      │  │  │
-                         │  │  │  (SSH + all egress)  │  │  │
+                         │  │  │  (egress only, no inbound)  │  │  │
                          │  │  └──────────────────────┘  │  │
                          │  └────────────────────────────┘  │
                          └─────────────────────────────────┘
@@ -58,7 +58,7 @@ Deploys a fully automated NanoClaw instance on AWS. One `terraform apply` gives 
 | `aws_subnet` | Public subnet with auto-assign public IP |
 | `aws_internet_gateway` | Internet access for the instance |
 | `aws_route_table` | Routes traffic to the internet gateway |
-| `aws_security_group` | SSH inbound (22), all outbound |
+| `aws_security_group` | Egress only (no inbound ports), access via SSM |
 | `aws_iam_role` | EC2 role with SSM + Secrets Manager access |
 | `aws_instance` | EC2 running pre-built NanoClaw AMI |
 
@@ -146,7 +146,7 @@ systemctl --user restart nanoclaw
 terraform/nanoclaw/
 ├── main.tf                 # VPC, SG, IAM, EC2 instance
 ├── variables.tf            # Input variables
-├── outputs.tf              # instance_id, public_ip, ssh_command
+├── outputs.tf              # instance_id, public_ip, ssm_command
 ├── providers.tf            # AWS provider with default tags
 ├── versions.tf             # Terraform >= 1.0, AWS ~> 5.0
 ├── backend.tf              # S3 remote state
