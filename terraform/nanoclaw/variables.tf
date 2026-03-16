@@ -32,3 +32,15 @@ variable "instance_type" {
   default     = "t3.small"
 }
 
+variable "schedule_start" {
+  description = "EventBridge cron to start EC2 (UTC). Empty to disable. Example: cron(0 13 ? * MON-FRI *) = 8 AM EST weekdays"
+  type        = string
+  default     = ""
+}
+
+variable "schedule_stop" {
+  description = "EventBridge cron to stop EC2 (UTC). Empty to disable. Example: cron(0 1 ? * TUE-SAT *) = 8 PM EST weekdays"
+  type        = string
+  default     = ""
+}
+

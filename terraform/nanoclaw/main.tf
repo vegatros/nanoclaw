@@ -162,3 +162,13 @@ resource "aws_instance" "nanoclaw" {
 
   depends_on = [data.aws_secretsmanager_secret.nanoclaw]
 }
+
+# EC2 Start/Stop Scheduler
+module "scheduler" {
+  source         = "./scheduler"
+  instance_id    = aws_instance.nanoclaw.id
+  project_name   = var.project_name
+  aws_region     = var.aws_region
+  schedule_start = var.schedule_start
+  schedule_stop  = var.schedule_stop
+}
