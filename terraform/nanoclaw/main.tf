@@ -76,7 +76,8 @@ resource "aws_iam_role_policy" "secrets" {
         data.aws_secretsmanager_secret.nanoclaw.arn,
         "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_user*",
         "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_pass*",
-        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_session*"
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:linkedin_session*",
+        "arn:aws:secretsmanager:us-east-1:925185632967:secret:gmail_app_password*"
       ]
     }]
   })
